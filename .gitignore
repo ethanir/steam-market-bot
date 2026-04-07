@@ -1,0 +1,11 @@
+testcase/*
+skins.txt
+test.py
+__pycache__
+.idea
+purchaseHistory.log__pycache__/
+*.pyc
+settings/config.yaml
+proxy-auth-extension/
+purchaseHistory.log
+.DS_Store
