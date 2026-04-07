@@ -1,0 +1,9 @@
+{
+  "max_pages": 6,
+  "cycle_cooldown": 15,
+  "page_delay_min": 3.0,
+  "page_delay_max": 5.0,
+  "skin_delay_min": 3.0,
+  "skin_delay_max": 5.0,
+  "float_mode": "under"
+}

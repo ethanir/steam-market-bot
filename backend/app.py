@@ -237,6 +237,25 @@ def stop_bot():
 def get_status():
     return bot_status.model_dump()
 
+@app.post("/api/bot/warmup")
+def warmup():
+    """Buy a cheap skin to activate the session (skip phone confirmations)."""
+    if bot_status.running:
+        return {"ok": False, "error": "Stop the bot first"}
+    
+    add_log("Starting warmup purchase...")
+    
+    def warmup_worker():
+        from bot_bridge import warmup_purchase
+        result = warmup_purchase(add_log)
+        return result
+    
+    # Run in background thread
+    t = threading.Thread(target=warmup_worker, daemon=True)
+    t.start()
+    
+    return {"ok": True, "message": "Warmup started — confirm on your phone!"}
+
 # ---------- LOGS ----------
 
 @app.get("/api/logs")

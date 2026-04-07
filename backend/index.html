@@ -129,6 +129,10 @@
 
       const startBot=()=>fetch(`${API}/api/bot/start`,{method:"POST"}).then(r=>r.json()).then(d=>{if(d.ok)setStatus(s=>({...s,running:true}))});
       const stopBot=()=>fetch(`${API}/api/bot/stop`,{method:"POST"}).then(r=>r.json()).then(d=>{if(d.ok)setStatus(s=>({...s,running:false}))});
+      const [warmingUp,setWarmingUp]=useState(false);
+      const warmup=()=>{setWarmingUp(true);fetch(`${API}/api/bot/warmup`,{method:"POST"}).catch(()=>setWarmingUp(false))};
+      // Reset warmup button when we see completion in logs
+      useEffect(()=>{if(warmingUp&&logs.length>0){const last5=logs.slice(-5).join(' ');if(last5.includes('Warmup complete')||last5.includes('Timed out')||last5.includes('ERROR'))setWarmingUp(false)}},[logs,warmingUp]);
 
       const addSkin=()=>{
         if(!newSkin.url)return;
@@ -161,6 +165,7 @@
             </div>
             <div style={{display:"flex",alignItems:"center",gap:12}}>
               <StatusBadge running={status.running}/>
+              {!status.running&&<button onClick={warmup} disabled={warmingUp} style={{...B("#f59e0b"),opacity:warmingUp?0.5:1}}>{warmingUp?"Confirming...":"Warm Up"}</button>}
               {status.running?<button onClick={stopBot} style={B(T.red)}>Stop</button>:<button onClick={startBot} style={B(T.green)}>Start Bot</button>}
             </div>
           </div>

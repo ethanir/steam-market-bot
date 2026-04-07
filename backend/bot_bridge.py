@@ -179,3 +179,120 @@ def run_bot(skins, settings, stop_event, log_callback, status_callback):
         log_callback(f"FATAL ERROR: {e}")
     finally:
         builtins.print = original_print
+
+
+def warmup_purchase(log_callback):
+    """
+    Buy a cheap $0.03 skin to activate the Steam session.
+    After this, no more phone confirmations are needed.
+    """
+    import builtins
+    original_print = builtins.print
+    builtins.print = lambda *a, **k: log_callback(" ".join(str(x) for x in a))
+    
+    WARMUP_URL = "https://steamcommunity.com/market/listings/730/Tec-9%20%7C%20Blue%20Blast%20%28Field-Tested%29"
+    
+    try:
+        # Import functions (connects to Chrome)
+        log_callback("Connecting to Chrome...")
+        try:
+            import functions
+            import importlib
+            importlib.reload(functions)
+        except Exception as e:
+            log_callback(f"ERROR: Could not connect to Chrome: {e}")
+            log_callback("Make sure Chrome is running with: --remote-debugging-port=9222")
+            return {"ok": False, "error": str(e)}
+        
+        from selenium.webdriver.common.by import By
+        from selenium.webdriver.support.wait import WebDriverWait
+        from selenium.webdriver.support import expected_conditions as ec
+        from locators import PageLocators
+        
+        log_callback("Navigating to warmup skin (Tec-9 Blue Blast)...")
+        functions.driver.get(WARMUP_URL)
+        time.sleep(3)
+        
+        # Find and click the first buy button
+        log_callback("Looking for buy button...")
+        try:
+            buy_buttons = WebDriverWait(functions.driver, 10).until(
+                ec.presence_of_all_elements_located(PageLocators.BUY_BUTTON_END)
+            )
+            if not buy_buttons:
+                log_callback("ERROR: No buy buttons found")
+                return {"ok": False, "error": "No buy buttons found"}
+            
+            log_callback("Clicking buy button...")
+            functions.driver.execute_script("arguments[0].click();", buy_buttons[0])
+            time.sleep(1)
+            
+            # Accept SSA checkbox
+            log_callback("Accepting Steam Subscriber Agreement...")
+            check_box = WebDriverWait(functions.driver, 5).until(
+                ec.element_to_be_clickable(PageLocators.CHECK_BOX)
+            )
+            functions.driver.execute_script("arguments[0].click();", check_box)
+            
+            # Click purchase
+            purchase_btn = WebDriverWait(functions.driver, 5).until(
+                ec.element_to_be_clickable(PageLocators.BUY_BUTTON)
+            )
+            functions.driver.execute_script("arguments[0].click();", purchase_btn)
+            
+            log_callback("⚡ Purchase initiated! Confirm on your phone NOW!")
+            log_callback("Waiting up to 60 seconds for phone confirmation...")
+            
+            # Wait for "Purchase completed successfully" to appear
+            confirmed = False
+            for i in range(60):
+                time.sleep(1)
+                try:
+                    page_text = functions.driver.execute_script("""
+                        var dialogs = document.querySelectorAll('.newmodal, #market_buynow_dialog');
+                        var text = '';
+                        dialogs.forEach(function(d) { text += d.textContent; });
+                        return text;
+                    """)
+                    if page_text and "Purchase completed successfully" in page_text:
+                        log_callback("✅ Purchase confirmed! Closing dialog...")
+                        # Click Close button
+                        try:
+                            close_btns = functions.driver.find_elements(By.CSS_SELECTOR, '.newmodal_close, #market_buynow_dialog_close, .btn_green_white_innerfade')
+                            for btn in close_btns:
+                                try:
+                                    if btn.is_displayed():
+                                        functions.driver.execute_script("arguments[0].click();", btn)
+                                        break
+                                except Exception:
+                                    pass
+                        except Exception:
+                            pass
+                        confirmed = True
+                        break
+                except Exception:
+                    pass
+                
+                if i % 10 == 9:
+                    log_callback(f"Still waiting... ({i+1}s)")
+            
+            if confirmed:
+                log_callback("✅ Warmup complete! You can now start the bot without phone confirmations.")
+                return {"ok": True}
+            else:
+                # Try to close any dialog anyway
+                try:
+                    close_btns = functions.driver.find_elements(By.CSS_SELECTOR, '.newmodal_close')
+                    if close_btns:
+                        functions.driver.execute_script("arguments[0].click();", close_btns[0])
+                except Exception:
+                    pass
+                log_callback("⚠️ Timed out waiting for confirmation. Try again or confirm manually.")
+                return {"ok": False, "error": "Timed out waiting for phone confirmation"}
+                
+        except Exception as e:
+            log_callback(f"ERROR during purchase: {e}")
+            return {"ok": False, "error": str(e)}
+            
+    finally:
+        builtins.print = original_print
