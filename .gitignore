@@ -9,3 +9,4 @@ settings/config.yaml
 proxy-auth-extension/
 purchaseHistory.log
 .DS_Store
+backend/data/
