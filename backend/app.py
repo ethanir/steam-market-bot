@@ -342,8 +342,62 @@ def bot_worker():
 # RUN
 # ============================================================
 
+def launch_chrome():
+    """Launch Chrome with remote debugging if not already running."""
+    import subprocess
+    import platform
+    import socket
+    
+    # Check if Chrome is already listening on port 9222
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    try:
+        sock.settimeout(1)
+        sock.connect(("127.0.0.1", 9222))
+        sock.close()
+        print("[INFO] Chrome already running on port 9222")
+        return
+    except (ConnectionRefusedError, socket.timeout, OSError):
+        sock.close()
+    
+    print("[INFO] Launching Chrome with remote debugging...")
+    
+    system = platform.system()
+    if system == "Darwin":  # macOS
+        chrome_path = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
+    elif system == "Windows":
+        chrome_path = r"C:\Program Files\Google\Chrome\Application\chrome.exe"
+    else:  # Linux
+        chrome_path = "google-chrome"
+    
+    user_data = os.path.expanduser("~/ChromeDebug")
+    
+    subprocess.Popen([
+        chrome_path,
+        "--remote-debugging-port=9222",
+        f"--user-data-dir={user_data}",
+    ], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    
+    # Wait for Chrome to be ready
+    import time
+    for _ in range(15):
+        try:
+            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            s.settimeout(1)
+            s.connect(("127.0.0.1", 9222))
+            s.close()
+            print("[INFO] Chrome is ready!")
+            return
+        except (ConnectionRefusedError, socket.timeout, OSError):
+            time.sleep(1)
+    
+    print("[WARN] Chrome may not be ready yet — try manually if connection fails")
+
+
 if __name__ == "__main__":
     import uvicorn
+    
+    # Launch Chrome automatically
+    launch_chrome()
     
     # Start the async event loop in a background thread for broadcasting
     def run_loop():
@@ -352,5 +406,11 @@ if __name__ == "__main__":
     
     loop_thread = threading.Thread(target=run_loop, daemon=True)
     loop_thread.start()
+    
+    print("\n  Steam Market Bot running at: http://localhost:8000\n")
+    
+    # Auto-open dashboard in default browser
+    import webbrowser
+    threading.Timer(1.5, lambda: webbrowser.open("http://localhost:8000")).start()
     
     uvicorn.run(app, host="0.0.0.0", port=8000)
