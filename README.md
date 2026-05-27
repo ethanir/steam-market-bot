@@ -1,247 +1,162 @@
-# Steam Market Bot
+<div align="center">
 
-Automated Steam Community Market scanner and purchasing tool. Monitors skin listings in real-time using the CSFloat browser extension for float value analysis, and automatically purchases skins that match your configured criteria (float, pattern, stickers, price).
+# 🎯 Steam Market Bot
 
-Includes a **web dashboard** for managing skins, configuring settings, and monitoring the bot live — no terminal editing required.
+### A real-time CS2 float sniper for the Steam Community Market — scan, match, and auto-buy
 
-> ⚠️ **Currently macOS only.** Windows/Linux support is planned.
+<p>
+  <img src="https://img.shields.io/badge/platform-macOS-000000?style=flat-square&logo=apple&logoColor=white" alt="macOS">
+  <img src="https://img.shields.io/badge/Python-3.10%2B-3776AB?style=flat-square&logo=python&logoColor=white" alt="Python 3.10+">
+  <img src="https://img.shields.io/badge/Selenium-43B02A?style=flat-square&logo=selenium&logoColor=white" alt="Selenium">
+  <img src="https://img.shields.io/badge/FastAPI-009688?style=flat-square&logo=fastapi&logoColor=white" alt="FastAPI">
+  <img src="https://img.shields.io/badge/React-18-61DAFB?style=flat-square&logo=react&logoColor=black" alt="React 18">
+  <img src="https://img.shields.io/badge/CSFloat-required-3b82f6?style=flat-square" alt="CSFloat required">
+  <img src="https://img.shields.io/badge/license-educational-eab308?style=flat-square" alt="Educational use">
+</p>
 
----
-
-## Features
-
-- **Real-time float scanning** via CSFloat Market Checker extension
-- **Auto-purchase** skins matching your float, pattern, sticker, and price criteria
-- **OVER/UNDER mode** — buy skins above or below a float threshold
-- **Web dashboard** with live logs, skin management, and bot controls
-- **Warm-up purchase** — one-click $0.03 buy to bypass phone confirmations
-- **Smart pagination** — stale page detection and skip-ahead navigation
-- **Rate limit handling** — configurable delays to avoid Steam throttling
-- **Auto Chrome launch** — single command starts everything
+</div>
 
 ---
 
-## Requirements
+## ✨ Overview
 
-- **macOS** (Apple Silicon or Intel)
-- **Python 3.10+**
-- **Google Chrome**
-- **CSFloat Market Checker** Chrome extension
+**Steam Market Bot** watches CS2 skin listings in real time and snipes the ones that match your exact criteria — float, paint seed, sticker count, and price. It reads live float values straight from the **CSFloat Market Checker** extension, sorts listings, walks through pages, and auto-purchases anything that fits.
 
----
+Drive it from a clean **web dashboard** — add skins, tune settings, and watch a live log stream — or run it straight from the terminal. No config editing required unless you want it.
 
-## Installation
+## 🎮 Features
 
-### 1. Clone the repository
+- 🔍 **Real-time float scanning** — reads float values live from the CSFloat extension's DOM injection.
+- ⚡ **Auto-purchase** — buys skins matching your float, pattern, sticker, and price criteria automatically.
+- 🔀 **OVER / UNDER mode** — snipe skins above *or* below a float threshold.
+- 🖥️ **Web dashboard** — live logs, skin management, and bot controls in the browser. One command starts everything.
+- 🔥 **Warm-up purchase** — one-click $0.03 buy to activate your session and skip phone confirmations.
+- 🧭 **Smart pagination** — detects stale pages and skips ahead to recover.
+- 🐢 **Rate-limit handling** — configurable delays to stay under Steam's throttle.
+- 🚀 **Auto Chrome launch** — a single command spins up Chrome with remote debugging and opens the dashboard.
+
+## 📦 Requirements
+
+| Requirement | Notes |
+|:------------|:------|
+| **macOS** | Apple Silicon or Intel. Windows/Linux planned. |
+| **Python 3.10+** | — |
+| **Google Chrome** | Launched with remote debugging. |
+| **CSFloat Market Checker** | Chrome extension — **required** for float reading. |
+
+## 🚀 Quick Start
 
 ```bash
+# 1. Clone the repo
 git clone https://github.com/ethanir/steam-market-bot.git
 cd steam-market-bot
-```
 
-### 2. Install Python dependencies
-
-```bash
+# 2. Install dependencies
 pip3 install selenium requests chromedriver-autoinstaller pyyaml fastapi uvicorn
-```
 
-### 3. Install the CSFloat Market Checker extension
-
-This extension is **required** — the bot uses it to read float values directly from Steam listings.
-
-1. Open Chrome and go to the [Chrome Web Store](https://chromewebstore.google.com/detail/csfloat-market-checker/jjicbefpemnphinccgikpdaagjebbnhg)
-2. Search for **"CSFloat Market Checker"**
-3. Click **Add to Chrome**
-4. Make sure the extension is enabled (puzzle icon → CSFloat should be listed)
-
-### 4. Configure CSFloat settings
-
-After installing CSFloat, click the extension icon and make sure:
-- **Show float values on market pages** is enabled
-- The extension has permission to run on `steamcommunity.com`
-
----
-
-## Usage (Web Dashboard)
-
-The web dashboard is the recommended way to use the bot. One command does everything:
-
-```bash
-cd steam-market-bot/backend
+# 3. Launch the dashboard (auto-starts Chrome + opens browser)
+cd backend
 python3 app.py
 ```
 
-This will:
-1. **Launch Chrome** with remote debugging enabled
-2. **Start the web server** at `http://localhost:8000`
-3. **Open the dashboard** in your default browser
+Then install the [CSFloat Market Checker](https://chromewebstore.google.com/detail/csfloat-market-checker/jjicbefpemnphinccgikpdaagjebbnhg) extension, enable **Show float values on market pages**, and allow it to run on `steamcommunity.com`.
 
-### First-time setup
+## 🖥️ Using the Dashboard
 
-1. **Log into Steam** in the Chrome window that opens
-2. Click **Warm Up** in the dashboard — this buys a $0.03 skin to activate your session so you won't need phone confirmations while the bot runs
-3. **Confirm the purchase** on your phone when prompted
-4. Go to the **Skins** tab and add the skins you want to monitor
-5. Configure **Float Mode** (OVER or UNDER)
-6. Click **Start Bot**
+The dashboard at `http://localhost:8000` is the recommended way to run the bot.
 
-### Adding skins
+1. **Log into Steam** in the Chrome window that opens.
+2. Click **Warm Up** — buys a $0.03 skin to activate your session. Confirm on your phone.
+3. Open the **Skins** tab and paste a Steam Market URL, then set float threshold, max price, and (optionally) a pattern.
+4. Pick **Float Mode** — OVER or UNDER.
+5. Hit **Start Bot** and watch the live log.
 
-1. Go to the Steam Community Market and find the skin you want
-2. Copy the full URL (e.g. `https://steamcommunity.com/market/listings/730/AK-47%20%7C%20Redline%20(Battle-Scarred)`)
-3. In the dashboard **Skins** tab, paste the URL
-4. Set your **float threshold**, **max price**, and optionally a **pattern**
-5. Click **Add Skin**
+## ⌨️ Terminal Mode
 
-### Settings
-
-In the **Settings** tab you can configure:
-
-| Setting | Default | Description |
-|---|---|---|
-| Max Pages | 6 | How many pages to scan per skin |
-| Cycle Cooldown | 15s | Wait time between full scan cycles |
-| Page Delay | 3-5s | Random delay between page navigations |
-| Skin Delay | 3-5s | Random delay between switching skins |
-
-**Important:** Keep delays at 3+ seconds to avoid Steam rate limiting. If you get rate limited (pages stop changing), stop the bot and wait 15-30 minutes.
-
----
-
-## Usage (Terminal Only)
-
-If you prefer the terminal-based bot without the web dashboard:
-
-### 1. Launch Chrome with debugging
+Prefer no dashboard? Run the classic bot directly.
 
 ```bash
-"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" --remote-debugging-port=9222 --user-data-dir="$HOME/ChromeDebug"
+# 1. Launch Chrome with remote debugging
+"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" \
+  --remote-debugging-port=9222 \
+  --user-data-dir="$HOME/ChromeDebug"
+
+# 2. Log into Steam in that Chrome window, then run:
+python3 csgo-market-sniper.py
 ```
 
-### 2. Log into Steam in that Chrome window
-
-### 3. Edit your config file
-
-Create `settings/config.yaml`:
+Configure your skins in `settings/config.yaml`:
 
 ```yaml
 skins:
   - url: https://steamcommunity.com/market/listings/730/AK-47%20%7C%20Redline%20(Battle-Scarred)
-    float: 0.795
-    price: 0.10
-    number_of_stickers:
-    pages:
-    pattern:
+    float: 0.795        # threshold (used with OVER/UNDER mode)
+    price: 0.10         # max price you'll pay
+    pattern:            # paint seed(s) — e.g. "502, 800". empty = any
+    number_of_stickers: # filter by sticker count. empty = any
+    pages:              # max pages to scan. empty = default
 ```
 
-- **float**: The float threshold (used with OVER/UNDER mode)
-- **price**: Maximum price you're willing to pay
-- **pattern**: Specific paint seed(s) — leave empty for any. Use `502, 800` for multiple
-- **number_of_stickers**: Filter by sticker count — leave empty for any
-- **pages**: Max pages to scan for this skin — leave empty for default
+## ⚙️ Settings
 
-### 4. Run the bot
+| Setting | Default | Description |
+|:--------|:-------:|:------------|
+| Max Pages | 6 | Pages scanned per skin |
+| Cycle Cooldown | 15s | Wait between full scan cycles |
+| Page Delay | 3–5s | Random delay between page navigations |
+| Skin Delay | 3–5s | Random delay between switching skins |
 
-```bash
-python3 csgo-market-sniper.py
-```
+> ⚠️ Keep delays at **3+ seconds** to avoid Steam rate limiting. If pages stop changing, stop the bot and wait 15–30 minutes.
 
-Select OVER (1) or UNDER (2) mode when prompted, then the bot will start scanning.
+## 🏗️ How It Works
 
----
+1. Connects to your running Chrome via remote debugging.
+2. Navigates to each skin's Market listing.
+3. CSFloat loads float values for every listing; the bot reads them from the extension's DOM.
+4. Sorts by float — highest first for OVER, lowest for UNDER.
+5. If the top listing matches float + price + pattern, it auto-purchases.
+6. Scans across pages, then moves to the next skin and loops.
 
-## How It Works
+**Stale-page recovery:** Steam pagination sometimes fails silently. The bot detects a repeated top float, jumps ahead to a fresh page, then scans backwards to cover the gap. **Rate limiting:** if every skin gets stuck on the same page, you're throttled — stop and wait 15–30 minutes.
 
-1. The bot connects to your Chrome browser via remote debugging
-2. For each skin in your config, it navigates to the Steam Market listing
-3. CSFloat extension loads float values for all listings on the page
-4. The bot reads these float values directly from the extension's DOM injection
-5. It sorts by float (highest first for OVER mode, lowest for UNDER mode)
-6. If a listing matches your criteria (float + price + pattern), it auto-purchases
-7. It scans through multiple pages, then moves to the next skin
-8. After all skins are scanned, it waits and starts a new cycle
-
-### Stale Page Detection
-
-Steam's pagination sometimes fails silently — you click "next page" but the content doesn't change. The bot detects this by comparing the top float value between pages. If the same float appears twice in a row, it knows the page didn't actually change and triggers recovery:
-
-1. Jumps ahead to a further page (e.g. page 6)
-2. If that page loads different content, scans backwards from there
-3. If no pages work, moves to the next skin
-
-### Rate Limiting
-
-Steam will temporarily block pagination if you make too many requests. Signs of rate limiting:
-- Every skin gets "stuck" on the same page
-- Manual clicking in the browser also doesn't work
-
-If this happens, stop the bot and wait 15-30 minutes. To prevent it, keep page delays at 3+ seconds and don't scan more than 2-3 skins at a time.
-
----
-
-## Project Structure
+## 📁 Project Structure
 
 ```
 steam-market-bot/
 ├── backend/                  # Web dashboard
-│   ├── app.py               # FastAPI server + Chrome launcher
-│   ├── bot_bridge.py        # Connects web UI to Selenium bot
-│   ├── index.html           # Dashboard frontend
-│   └── data/                # Saved skins & settings (auto-created)
-├── functions.py             # Core bot logic (scanning, buying, navigation)
-├── locators.py              # Selenium element selectors
-├── config.py                # YAML config loader (terminal mode)
-├── csgo-market-sniper.py    # Terminal-mode entry point
+│   ├── app.py                # FastAPI server + Chrome launcher
+│   ├── bot_bridge.py         # Bridges web UI to the Selenium bot
+│   ├── index.html            # React dashboard frontend
+│   └── data/                 # Saved skins & settings (auto-created)
+├── functions.py              # Core bot logic — scanning, buying, navigation
+├── locators.py               # Selenium element selectors
+├── config.py                 # YAML config loader (terminal mode)
+├── csgo-market-sniper.py     # Terminal-mode entry point
 └── settings/
-    ├── config.yaml          # Skin config (terminal mode, gitignored)
+    ├── config.yaml           # Skin config (terminal mode, gitignored)
     └── requirements.txt
 ```
 
----
+## 🩹 Troubleshooting
 
-## Troubleshooting
-
-### "Cannot connect to Chrome at 127.0.0.1:9222"
-
-Chrome isn't running with remote debugging. If using the web dashboard, restart `python3 app.py` — it auto-launches Chrome. If using terminal mode, run:
-
-```bash
-"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" --remote-debugging-port=9222 --user-data-dir="$HOME/ChromeDebug"
-```
-
-The `--user-data-dir` flag is required — without it, Chrome won't enable the debugging port.
-
-### CSFloat floats not loading
-
-- Make sure the CSFloat Market Checker extension is installed and enabled
-- Check that you're on a CS2 skin listing page (not cases, stickers, etc.)
-- Try refreshing the page — CSFloat sometimes takes a few seconds to inject
-- If using `--user-data-dir="$HOME/ChromeDebug"`, you may need to reinstall the extension in that Chrome profile
-
-### Pages not changing / "stuck" on every skin
-
-You're likely rate limited by Steam. Stop the bot and wait 15-30 minutes. When restarting, increase your delays in Settings (4-6 seconds recommended).
-
-### Phone confirmation required on every purchase
-
-Use the **Warm Up** button in the dashboard before starting the bot. This buys a $0.03 skin that you confirm on your phone, which activates your session for subsequent purchases.
-
-### "session not created" error
-
-Your chromedriver version doesn't match your Chrome version. Run:
-
-```bash
-pip3 install --upgrade chromedriver-autoinstaller
-```
-
-Then restart the bot — it will auto-install the correct chromedriver.
-
-### Bot buys but the purchase fails
-
-The listing may have been bought by someone else between scanning and clicking. This is normal on high-demand skins. The bot will continue scanning.
+| Problem | Fix |
+|:--------|:----|
+| `Cannot connect to Chrome at 127.0.0.1:9222` | Chrome isn't running with debugging. Restart `python3 app.py`, or relaunch Chrome with the `--remote-debugging-port` flag. |
+| CSFloat floats not loading | Confirm the extension is installed/enabled on a CS2 listing page. Refresh — injection takes a few seconds. |
+| Pages "stuck" on every skin | You're rate limited. Stop and wait 15–30 min; raise delays to 4–6s. |
+| Phone confirmation on every buy | Use **Warm Up** before starting the bot. |
+| `session not created` | Chromedriver/Chrome version mismatch — run `pip3 install --upgrade chromedriver-autoinstaller`. |
 
 ---
 
-## Disclaimer
+## ⚠️ Disclaimer
 
-This tool is for educational purposes. Use at your own risk. Automated purchasing may violate Steam's Terms of Service. The authors are not responsible for any consequences including account restrictions.
+This tool is for **educational purposes**. Automated purchasing may violate Steam's Terms of Service. Use at your own risk — the author is not responsible for any consequences, including account restrictions.
+
+---
+
+<div align="center">
+
+© 2026 Ethan Irimiciuc · All rights reserved.
+
+</div>
